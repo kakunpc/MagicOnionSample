@@ -4,12 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Grpc.Core;
-using MagicOnion;
 using MagicOnion.Hosting;
-using MagicOnion.HttpGateway.Swagger;
 using MagicOnion.Server;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -40,28 +36,7 @@ namespace Server
                 .UseConsoleLifetime()
                 .Build();
 
-            IWebHost? webHost = default;
-
-            if (config.GetValue<bool>("Swagger:Enabled"))
-            {
-                var url = config["Swagger:UseUrl"];
-                url = string.IsNullOrEmpty(url) ? "http://localhots:5432" : url;
-
-                webHost = new WebHostBuilder()
-                    .ConfigureServices(collection =>
-                    {
-                        collection.AddSingleton(magicOnionHost.Services
-                            .GetService<MagicOnionHostedServiceDefinition>().ServiceDefinition);
-                    })
-                    .ConfigureLogging((hostingContext, logging) => BuildLogging(hostingContext.Configuration, logging))
-                    .UseKestrel()
-                    .ConfigureKestrel(serverOptions => serverOptions.AllowSynchronousIO = true)
-                    .UseStartup<Startup>()
-                    .UseUrls(url)
-                    .Build();
-            }
-
-            await Task.WhenAll(magicOnionHost.RunAsync(), webHost?.RunAsync() ?? Task.CompletedTask);
+            await Task.WhenAll(magicOnionHost.RunAsync());
         }
 
         private static IConfigurationRoot BuildConfiguration(string[] args)
@@ -112,26 +87,4 @@ namespace Server
         }
     }
     
-    // WebAPI Startup configuration.
-    public class Startup
-    {
-        // Inject MagicOnionServiceDefinition from DIl
-        public void Configure(IApplicationBuilder app, MagicOnionServiceDefinition magicOnion)
-        {
-            // Optional:Add Summary to Swagger
-            // var xmlName = "Sandbox.NetCoreServer.xml";
-            // var xmlPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), xmlName);
-
-            // HttpGateway requires two middlewares.
-            // One is SwaggerView(MagicOnionSwaggerMiddleware)
-            // One is Http1-JSON to gRPC-MagicOnion gateway(MagicOnionHttpGateway)
-            app.UseMagicOnionSwagger(magicOnion.MethodHandlers,
-                new SwaggerOptions("MagicOnion.Server", "Swagger Integration Test", "/")
-                {
-                    // XmlDocumentPath = xmlPath
-                });
-            app.UseMagicOnionHttpGateway(magicOnion.MethodHandlers,
-                new Channel("localhost:12345", ChannelCredentials.Insecure));
-        }
-    }
 }

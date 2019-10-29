@@ -1,6 +1,6 @@
 // BUG コンパイラが StreamingHubBase<IRoomHub, _> : IStreamingHub<IRoomHub, _> を正しく認識していない
 // 詳細は以下をコメントアウトするとわかる
-#nullable disable
+//#nullable disable
 
 using System.Threading.Tasks;
 using MagicOnion.Server.Hubs;
