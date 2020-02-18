@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MagicOnion" Version="2.6.1" />
-    <PackageReference Include="MessagePack" Version="1.7.3.7" />
-    <PackageReference Include="MessagePack.UnityShims" Version="1.7.3.7" />
+    <PackageReference Include="MagicOnion" Version="3.0.9" />
+    <PackageReference Include="MessagePack" Version="2.1.90" />
+    <PackageReference Include="MessagePack.UnityShims" Version="2.1.90" />
   </ItemGroup>
 
   <ItemGroup>
